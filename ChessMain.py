@@ -25,25 +25,29 @@ def main():
     gs = ChessEngine.GameState()
     loadImage()    
     running = True #flag para controlar o loop principal
-    sqSelected = () #no inicialmente nenhum quadrado está selecionado, keep track of this last click of the user (tuple:(row,column))
-    playerClicks = [] #keep track of the clicks (two tuples: [(6,4),(4,4)])
+    sqSelected = () # inicialmente nenhum quadrado está selecionado, keep track of this last click of the user (tuple:(row,column))
+    playerClicks = [] #acompanhar os cliques  (duas tuples: [(6,4),(4,4)])
     while running:
         for e in pygame.event.get(): #loop para capturar eventos
             if e.type == pygame.QUIT: #evento para fechar a janela  
                 running = False
             elif e.type == pygame.MOUSEBUTTONDOWN: #evento para pegar quando o mouse é clicado
-                location = pygame.get_mouse_pos() # pega a posição do mouse
+                location = pygame.mouse.get_pos() # pega a posição do mouse
                 column = location[0]//SQ_SIZE
                 row = location[1]//SQ_SIZE 
                 if sqSelected == (row,column):
-                    sqSelected = () # deselect
-                    playerClicks = [] #clear player clicks
+                    sqSelected = () # desmarcar
+                    playerClicks = [] #limpa os click do player
                 else:
-                    sqSelected = (row,column) #select
-                    playerClicks.append(sqSelected) # add to player clicks
+                    sqSelected = (row,column) #seleciona
+                    playerClicks.append(sqSelected) # adiciona click de player
                 if len(playerClicks) == 2: #verifica se o usuário clicou duas vezes
-                    d=4
-                
+                    move = ChessEngine.Move(playerClicks[0], playerClicks[1],gs.board)
+                    print(move.getChessNotation())
+                    gs.makeMove(move)
+                    sqSelected = () 
+                    playerClicks = [] 
+
         drawGameState(screen, gs)
         clock.tick(MAX_FPS)
         pygame.display.flip()
@@ -70,3 +74,4 @@ def drawPiece(screen,board):
                 screen.blit(IMAGES[piece],pygame.Rect(columns*SQ_SIZE,row*SQ_SIZE,SQ_SIZE,SQ_SIZE))
 
 main()
+
