@@ -24,7 +24,7 @@ def main():
     screen.fill(pygame.Color("white")) #pinta a tela de branco
     gs = ChessEngine.GameState()
     validMoves = gs.getValidMoves()
-    moveMade = False #flag variable for when a move is made
+    moveMade = False #variável de sinalizador para quando um movimento é feito
     
     loadImage()    
     running = True #flag para controlar o loop principal

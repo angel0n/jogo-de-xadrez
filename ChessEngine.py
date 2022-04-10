@@ -17,17 +17,20 @@ class GameState():
             ["wP","wP","wP","wP","wP","wP","wP","wP"],
             ["wR","wN","wB","wQ","wK","wB","wN","wR"]
         ]
+        self.moveFunctions = {'P': self.getPawnMoves,'R':self.getRookMoves,'N':self.getKnightMoves,
+                              'B': self.getBishopMoves, 'Q': self.getQueenMoves, 'K': self.getKingMoves}
+
         self.whiteToMove = True
         self.moveLog = []
 
-    #Takes a Move as a parameter and executes it (this will not work for castling, pawn promotion, and en passant)
+    #Toma um movimento como parâmetro e o executa (isso não funcionará para roque, promoção de peões)
     def makeMove(self, move):
         self.board[move.startRow][move.startColumn] = "--"
         self.board[move.endRow][move.endColumn] = move.pieceMoved
         self.moveLog.append(move) #log the move so we can undo it later
         self.whiteToMove = not self.whiteToMove #swap players         
     
-    # undo the last move made
+    #desfaz o ultimo movimento
     def undoMove(self):
         if len(self.moveLog) > 0:
             move = self.moveLog.pop()
@@ -36,31 +39,68 @@ class GameState():
             self.whiteToMove = not self.whiteToMove
     
     def getValidMoves(self):
-        return self.getAllPossibleMoves() #for now we will not worry about checks
+        return self.getAllPossibleMoves() #por enquanto não vamos nos preocupar com cheques
     
-    #all moves without considering checks 
+    # todos os movimentos sem considerar cheques
     def getAllPossibleMoves(self):
-        moves = [Move((6,4),(4,4),self.board)]
+        moves = []
         for row in range(len(self.board)):
            for column in range(len(self.board[row])):
              turn = self.board[row][column][0]
-             if(turn == 'w' and self.whiteToMove) and (turn == 'b' and not self.whiteToMove):
+             if(turn == 'w' and self.whiteToMove) or (turn == 'b' and not self.whiteToMove):
                  piece = self.board[row][column][1]
-                 if piece == 'P':
-                     self.getPawnMoves(row, column, moves)
-                 elif piece == 'R':
-                     self.getRookMoves(row, column, moves)
+                 self.moveFunctions[piece](row,column,moves) #chama a função de movimento apropriada com base no tipo de peça
                      
         return moves
     
-    #get all pawn moves for the pawn located at row, col and add these moves to the list
+    #obtenha todos os movimentos de peão para o peão localizado na linha, coluna e adicione esses movimentos à lista
     def getPawnMoves(self,row,column, moves):
-        pass
-    
-    #get all rook moves for the rook located at row, col and add these moves to the list
+        if self.whiteToMove: #verifica peões brancos
+            if row - 1 >= 0:
+                if self.board[row - 1][column] == '--': # peão avança 1 quadrado
+                    moves.append( Move( (row,column),(row-1,column),self.board ) )
+                    if row == 6 and self.board[row - 2][column] == '--':# peão avança 2 quadrado
+                        moves.append( Move( (row,column),(row-2,column),self.board ) )
+                if column - 1 >= 0: #captura para a esquerda
+                    if self.board[row - 1][column - 1][0] == 'b': #captura a peça
+                        moves.append( Move( (row,column),(row-1,column-1),self.board))
+                if column + 1 <= 7:#captura para a direita
+                    if self.board[row-1][column+1][0] == 'b': #captura a peça
+                        moves.append( Move( (row,column),(row-1,column+1),self.board))
+        else: #verifica peões pretos
+            if row + 1 <= 7:
+                if self.board[row+1][column] == '--':
+                    moves.append( Move( (row,column),(row+1,column),self.board))
+                    if row == 1 and self.board[row+2][column] == '--':
+                        moves.append( Move( (row,column),(row+2,column),self.board))
+                if column - 1 >= 0:
+                    if self.board[row+1][column-1][0] == 'w': 
+                        moves.append( Move( (row,column),(row+1,column-1),self.board))
+                if column +1 <= 7:
+                    if self.board[row+1][column+1][0] == 'w':
+                        moves.append( Move( (row,column),(row+1,column+1),self.board))  
+
+
+
+    #obtenha todos os movimentos de torre para a torre localizada na linha, coluna e adicione esses movimentos à lista
     def getRookMoves(self,row,column, moves):
         pass
 
+    #obtenha todos os movimentos de cavalo para o cavalo localizada na linha, coluna e adicione esses movimentos à lista
+    def getKnightMoves(self,row,column, moves):
+        pass
+
+    #obtenha todos os movimentos do bispo para o bispo localizada na linha, coluna e adicione esses movimentos à lista
+    def getBishopMoves(self,row,column, moves):
+        pass
+
+    #obtenha todos os movimentos da rainha para a rainha localizada na linha, coluna e adicione esses movimentos à lista
+    def getQueenMoves(self,row,column, moves):
+        pass
+
+    #obtenha todos os movimentos do rei para o rei localizada na linha, coluna e adicione esses movimentos à lista
+    def getKingMoves(self,row,column, moves):
+        pass
 
 class Move():
      
@@ -85,7 +125,7 @@ class Move():
         self.pieceCaptured = board[self.endRow][self.endColumn] #peça que foi capturada/destino da peça movida
         self.moveID = self.startRow * 1000 + self.startColumn * 100 + self.endRow * 10 + self.endColumn
         
-    #Overriding the equals method 
+    #Substituindo o método equals
     def __eq__(self,other):
         if isinstance(other,Move):
             return self.moveID == other.moveID
