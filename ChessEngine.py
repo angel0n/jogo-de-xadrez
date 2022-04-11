@@ -80,11 +80,27 @@ class GameState():
                     if self.board[row+1][column+1][0] == 'w':
                         moves.append( Move( (row,column),(row+1,column+1),self.board))  
 
-
-
     #obtenha todos os movimentos de torre para a torre localizada na linha, coluna e adicione esses movimentos à lista
     def getRookMoves(self,row,column, moves):
-        pass
+        direcoes = ((-1,0),(0,-1),(1,0),(0,1))
+        enemy = 'b' if self.whiteToMove else 'w'
+        for direcao in direcoes:
+            for i in range(1,8):
+                endRow = row + direcao[0] * i
+                endColumn = column + direcao[1] * i
+                if 0 <= endRow < 8 and 0 <= endColumn < 8:
+                    endPiece = self.board[endRow][endColumn]
+                    if endPiece == '--':
+                        moves.append( Move( (row,column),(endRow,endColumn),self.board))
+                    elif endPiece[0] == enemy:
+                        moves.append( Move( (row,column),(endRow,endColumn),self.board))
+                        break
+                    else:
+                        break
+                else:
+                    break
+    
+    
 
     #obtenha todos os movimentos de cavalo para o cavalo localizada na linha, coluna e adicione esses movimentos à lista
     def getKnightMoves(self,row,column, moves):
