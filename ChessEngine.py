@@ -105,37 +105,15 @@ class GameState():
     
     #obtenha todos os movimentos de cavalo para o cavalo localizada na linha, coluna e adicione esses movimentos à lista
     def getKnightMoves(self,row,column, moves):
-        enemy = 'b' if self.whiteToMove else 'w'
-        if row + 2 < 8:
-            if column + 1 < 8:
-                if self.board[row+2][column+1]  == '--' or self.board[row+2][column+1][0] == enemy: 
-                    moves.append( Move( (row,column),(row+2,column+1),self.board))
-            if column - 1 >= 0:
-                if self.board[row+2][column-1]  == '--' or self.board[row+2][column-1][0] == enemy: 
-                    moves.append( Move( (row,column),(row+2,column-1),self.board))
-        if row - 2 >= 0:
-            if column + 1 < 8:
-                if self.board[row-2][column+1]  == '--' or self.board[row-2][column+1][0] == enemy: 
-                    moves.append( Move( (row,column),(row-2,column+1),self.board))
-            if column - 1 >= 0:
-                if self.board[row-2][column-1]  == '--' or self.board[row-2][column-1][0] == enemy: 
-                    moves.append( Move( (row,column),(row-2,column-1),self.board))
-        if column + 2 < 8:
-            if row + 1 < 8:
-                if self.board[row+1][column+2]  == '--' or self.board[row+1][column+2][0] == enemy: 
-                    moves.append( Move( (row,column),(row+1,column+2),self.board))
-            if row - 1 >= 0:
-                if self.board[row-1][column+2]  == '--' or self.board[row-1][column+2][0] == enemy: 
-                    moves.append( Move( (row,column),(row-1,column+2),self.board))
-        if column - 2 >= 0:
-            if row + 1 < 8:
-                if self.board[row+1][column-2]  == '--' or self.board[row+1][column-2][0] == enemy: 
-                    moves.append( Move( (row,column),(row+1,column-2),self.board))
-            if row - 1 >= 0:
-                if self.board[row-1][column-2]  == '--' or self.board[row-1][column-2][0] == enemy: 
-                    moves.append( Move( (row,column),(row-1,column-2),self.board))
-        
-                    
+        movimentos = ( (-2,1),(-2,-1), (2,1),(2,-1),(1,2),(-1,2),(1,-2),(-1,-2)  )
+        ally = 'w' if self.whiteToMove else 'b'
+        for movimento in movimentos:
+            endRow = row +movimento[0]
+            endColumn = column +movimento[1]
+            if 0 <= endRow < 8 and 0 <= endColumn < 8:
+                endPiece = self.board[endRow][endColumn]
+                if endPiece[0] != ally: #verifica se a peça final não é aliada
+                    moves.append( Move( (row,column),(endRow,endColumn),self.board))
 
 
     #obtenha todos os movimentos do bispo para o bispo localizada na linha, coluna e adicione esses movimentos à lista
