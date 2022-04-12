@@ -1,6 +1,9 @@
 # esta classe é responsável por armazenar todas as informações sobre o estado atual de um jogo de xadrez.
 # Ele também será responsável por determinar os movimentos válidos no wstate atual. Ele também manterá um registro de movimento.
 
+from shutil import move
+
+
 class GameState():
     def __init__(self):
         #placa é uma lista 2d 8X8, cada elemento da lista tem 2 caracteres.
@@ -82,7 +85,7 @@ class GameState():
 
     #obtenha todos os movimentos de torre para a torre localizada na linha, coluna e adicione esses movimentos à lista
     def getRookMoves(self,row,column, moves):
-        direcoes = ((-1,0),(0,-1),(1,0),(0,1))
+        direcoes = ((-1,0),(0,-1),(1,0),(0,1)) # cima, esquerda, baixo,direita
         enemy = 'b' if self.whiteToMove else 'w'
         for direcao in direcoes:
             for i in range(1,8):
@@ -100,11 +103,40 @@ class GameState():
                 else:
                     break
     
-    
-
     #obtenha todos os movimentos de cavalo para o cavalo localizada na linha, coluna e adicione esses movimentos à lista
     def getKnightMoves(self,row,column, moves):
-        pass
+        enemy = 'b' if self.whiteToMove else 'w'
+        if row + 2 < 8:
+            if column + 1 < 8:
+                if self.board[row+2][column+1]  == '--' or self.board[row+2][column+1][0] == enemy: 
+                    moves.append( Move( (row,column),(row+2,column+1),self.board))
+            if column - 1 >= 0:
+                if self.board[row+2][column-1]  == '--' or self.board[row+2][column-1][0] == enemy: 
+                    moves.append( Move( (row,column),(row+2,column-1),self.board))
+        if row - 2 >= 0:
+            if column + 1 < 8:
+                if self.board[row-2][column+1]  == '--' or self.board[row-2][column+1][0] == enemy: 
+                    moves.append( Move( (row,column),(row-2,column+1),self.board))
+            if column - 1 >= 0:
+                if self.board[row-2][column-1]  == '--' or self.board[row-2][column-1][0] == enemy: 
+                    moves.append( Move( (row,column),(row-2,column-1),self.board))
+        if column + 2 < 8:
+            if row + 1 < 8:
+                if self.board[row+1][column+2]  == '--' or self.board[row+1][column+2][0] == enemy: 
+                    moves.append( Move( (row,column),(row+1,column+2),self.board))
+            if row - 1 >= 0:
+                if self.board[row-1][column+2]  == '--' or self.board[row-1][column+2][0] == enemy: 
+                    moves.append( Move( (row,column),(row-1,column+2),self.board))
+        if column - 2 >= 0:
+            if row + 1 < 8:
+                if self.board[row+1][column-2]  == '--' or self.board[row+1][column-2][0] == enemy: 
+                    moves.append( Move( (row,column),(row+1,column-2),self.board))
+            if row - 1 >= 0:
+                if self.board[row-1][column-2]  == '--' or self.board[row-1][column-2][0] == enemy: 
+                    moves.append( Move( (row,column),(row-1,column-2),self.board))
+        
+                    
+
 
     #obtenha todos os movimentos do bispo para o bispo localizada na linha, coluna e adicione esses movimentos à lista
     def getBishopMoves(self,row,column, moves):
