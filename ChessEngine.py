@@ -115,19 +115,43 @@ class GameState():
                 if endPiece[0] != ally: #verifica se a peça final não é aliada
                     moves.append( Move( (row,column),(endRow,endColumn),self.board))
 
-
     #obtenha todos os movimentos do bispo para o bispo localizada na linha, coluna e adicione esses movimentos à lista
     def getBishopMoves(self,row,column, moves):
-        pass
+        direcoes = ( (-1,-1),(-1,1),(1,1),(1,-1) )
+        enemy = 'b' if self.whiteToMove else 'w'
+        for direcao in direcoes:
+            for i in range(1,8):
+                endRow = row + direcao[0] * i
+                endColumn = column + direcao[1] * i
+                if 0 <= endRow < 8 and 0 <= endColumn < 8:
+                    pieceCaptured = self.board[endRow][endColumn]
+                    if pieceCaptured == '--':
+                        moves.append( Move( (row,column),(endRow,endColumn),self.board))
+                    elif pieceCaptured[0] == enemy:
+                        moves.append( Move( (row,column),(endRow,endColumn),self.board))
+                        break
+                    else:
+                        break
+                else:
+                    break
 
     #obtenha todos os movimentos da rainha para a rainha localizada na linha, coluna e adicione esses movimentos à lista
     def getQueenMoves(self,row,column, moves):
-        pass
+        self.getRookMoves(row,column,moves)
+        self.getBishopMoves(row,column,moves)
 
     #obtenha todos os movimentos do rei para o rei localizada na linha, coluna e adicione esses movimentos à lista
     def getKingMoves(self,row,column, moves):
-        pass
-
+        movimentos = ( (1,0),(-1,0),(0,1),(0,-1),(-1,1),(-1,-1),(1,1),(1,-1) )
+        ally = 'w' if self.whiteToMove else 'b'
+        for movimento in movimentos:
+            endRow = row + movimento[0]
+            endColumn = column + movimento[1]
+            if 0 <= endRow < 8 and 0 <= endColumn < 8:
+                pieceCaptured = self.board[endRow][endColumn]   
+                if pieceCaptured != ally:
+                    moves.append( Move( (row,column),(endRow,endColumn),self.board))
+                   
 class Move():
      
     # faz o mapeamento das linhas e colunas, sendo contado de baixo para cima 
