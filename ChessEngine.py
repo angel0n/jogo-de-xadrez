@@ -25,13 +25,23 @@ class GameState():
 
         self.whiteToMove = True
         self.moveLog = []
+        self.whiteKingLocation = (7,4)
+        self.blackKingLocation = (0,4)
+        self.checkMate = False
+        self.staleMate = False
+
 
     #Toma um movimento como parâmetro e o executa (isso não funcionará para roque, promoção de peões)
     def makeMove(self, move):
         self.board[move.startRow][move.startColumn] = "--"
         self.board[move.endRow][move.endColumn] = move.pieceMoved
         self.moveLog.append(move) #log the move so we can undo it later
-        self.whiteToMove = not self.whiteToMove #swap players         
+        self.whiteToMove = not self.whiteToMove #swap players        
+        #atualiza a posição dos reis
+        if move.pieceMoved == 'wK':
+            self.whiteKingLocation = (move.endRow,move.endColumn)
+        elif move.pieceMoved == 'bK':
+            self.blackKingLocation = (move.endRow,move.endColumn)
     
     #desfaz o ultimo movimento
     def undoMove(self):
@@ -40,10 +50,55 @@ class GameState():
             self.board[move.startRow][move.startColumn] = move.pieceMoved
             self.board[move.endRow][move.endColumn] = move.pieceCaptured
             self.whiteToMove = not self.whiteToMove
-    
+            #atualiza a posição dos reis
+            if move.pieceMoved == 'wK':
+                self.whiteKingLocation = (move.startRow, move.startColumn)
+            elif move.pieceMoved == 'bK':
+                self.blackKingLocation = (move.startRow, move.startColumn)
+
+
     def getValidMoves(self):
-        return self.getAllPossibleMoves() #por enquanto não vamos nos preocupar com cheques
+        #1 ) gerar todos os movimentos validos
+        moves = self.getAllPossibleMoves() 
+        #2 ) for each move, make the move
+        for i in range(len(moves)-1,-1,-1): # when removing from a list go backwards through that list
+            self.makeMove(moves[i])
+            #3 ) gerar todos os movimentos do oponente 
+            #4 ) para cada movimento do oponente verificar se ele ataca o seu rei 
+            self.whiteToMove = not self.whiteToMove
+            if self.inCheck():
+                moves.remove(moves[i]) #5 ) se atacar não é um movimento valido  
+            self.whiteToMove = not self.whiteToMove
+            self.undoMove()
+        if len(moves) == 0: #impasse ou checkMate
+            if self.inCheck():
+                self.checkMate = True
+            else:
+                self.staleMate = True
+        else:
+            self.checkMate = False
+            self.staleMate = False
+        return moves
     
+    #determine if the current player is in check
+    def inCheck(self):
+        if self.whiteToMove:
+            return self.squareUnderAttack(self.whiteKingLocation[0],self.whiteKingLocation[1])
+        else:
+            return self.squareUnderAttack(self.blackKingLocation[0],self.blackKingLocation[1])
+
+    #determine if the enemy can attack the square r,c
+    def squareUnderAttack(self,row,column):
+        self.whiteToMove = not self.whiteToMove # muda o turno para o outro player
+        oppMoves = self.getAllPossibleMoves()
+        self.whiteToMove = not self.whiteToMove # volta o turno para o player atual
+        for move in oppMoves:
+            if move.endRow == row and move.endColumn == column: # verifica se a casa está sendo atacada
+                return True
+        return False
+
+
+
     # todos os movimentos sem considerar cheques
     def getAllPossibleMoves(self):
         moves = []
